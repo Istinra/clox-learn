@@ -25,7 +25,7 @@ static InterpretResult run() {
     for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
         printf("          ");
-        for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
+        for (Value *slot = vm.stack; slot < vm.stackTop; slot++) {
             printf("[ ");
             printValue(*slot);
             printf(" ]");
@@ -33,6 +33,12 @@ static InterpretResult run() {
         printf("\n");
         disassembleInstruction(vm.chunk, vm.ip - vm.chunk->code);
 #endif
+#define BINARY_OP(op) \
+    do { \
+        double b = pop(); \
+        double a = pop(); \
+        push(a op b); \
+    } while (false)
 
         uint8_t instruction;
         switch (instruction = READ_BYTE()) {
@@ -43,6 +49,16 @@ static InterpretResult run() {
                 printf("\n");
                 break;
             }
+            case OP_NEGATE: push(-pop());
+                break;
+            case OP_ADD: BINARY_OP(+);
+                break;
+            case OP_SUBTRACT: BINARY_OP(-);
+                break;
+            case OP_MULTIPLY: BINARY_OP(*);
+                break;
+            case OP_DIVIDE: BINARY_OP(/);
+                break;
             case OP_RETURN: {
                 printValue(pop());
                 printf("\n");
@@ -51,6 +67,7 @@ static InterpretResult run() {
         }
     }
 
+#undef BINARY_OP
 #undef READ_BYTE
 #undef READ_CONSTANT
 }
