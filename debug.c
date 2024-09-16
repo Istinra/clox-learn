@@ -33,7 +33,7 @@ int disassembleInstruction(Chunk *chunk, int offset) {
         count += chunk->lines[i];
 
         if(start == offset) {
-            printf("%4d ", chunk->lines[start + 1]);
+            printf("%4d ", chunk->lines[i + 1]);
         } else if (count > offset) {
             printf("   | ");
         }

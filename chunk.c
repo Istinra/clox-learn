@@ -29,7 +29,7 @@ void writeChunk(Chunk *chunk, uint8_t byte, int line) {
         if (chunk->linesCount > chunk->linesLen - 2) {
             const int originalLen = chunk->linesLen;
             chunk->linesLen = GROW_CAPACITY(chunk->linesLen);
-            chunk->lines = (int *) GROW_ARRAY(uint8_t, chunk->lines,
+            chunk->lines = (int *) GROW_ARRAY(int, chunk->lines,
                                               originalLen, chunk->linesLen);
         }
         chunk->lines[chunk->linesCount] = 1;
@@ -42,7 +42,7 @@ void writeChunk(Chunk *chunk, uint8_t byte, int line) {
 
 void freeChunk(Chunk *chunk) {
     FREE_ARRAY(uint8_t, chunk->code, chunk->len);
-    FREE_ARRAY(uint8_t, chunk->lines, chunk->linesLen);
+    FREE_ARRAY(int, chunk->lines, chunk->linesLen);
     freeValueArray(&chunk->constants);
     initChunk(chunk);
 }
