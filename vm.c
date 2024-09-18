@@ -55,7 +55,16 @@ static void runtimeError(const char *format, ...) {
     fputs("\n", stderr);
 
     size_t instruction = vm.ip - vm.chunk->code - 1;
-    int line = 0; //vm.chunk->lines[instruction]; TODO Write this to work with new lines method
+    int line = 1;
+    int count = 1;
+    for (int i = 0; i <= vm.chunk->linesCount && count < instruction + 1; i += 2) {
+        count += vm.chunk->lines[i];
+        if (count > instruction) {
+            line = vm.chunk->lines[i + 1];
+        }
+    }
+
+
     fprintf(stderr, "[line %d] in script\n", line);
     resetStack();
 }
