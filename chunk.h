@@ -14,6 +14,7 @@ typedef enum {
     OP_LESS,
     OP_NOT,
     OP_NEGATE,
+    OP_PRINT,
     OP_ADD,
     OP_SUBTRACT,
     OP_MULTIPLY,
