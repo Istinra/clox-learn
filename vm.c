@@ -157,6 +157,9 @@ static InterpretResult run() {
                 printf("\n");
                 break;
             }
+            case OP_RETURN: {
+                return INTERPRET_OK;
+            }
         }
     }
 
