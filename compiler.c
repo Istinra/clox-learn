@@ -39,8 +39,19 @@ typedef struct {
     Precedence precedence;
 } ParseRule;
 
-Parser parser;
+typedef struct {
+    Token name;
+    int depth;
+} Local;
 
+typedef struct {
+    Local locals[UINT8_COUNT];
+    int localCount;
+    int scopeDepth;
+} Compiler;
+
+Parser parser;
+Compiler* current = nullptr;
 Chunk* compilingChunk;
 
 static Chunk* currentChunk() {
@@ -127,6 +138,12 @@ static uint8_t makeConstant(Value value) {
 
 static void emitConstant(Value value) {
     emitBytes(OP_CONSTANT, makeConstant(value));
+}
+
+static void initCompiler(Compiler* compiler) {
+    compiler->localCount = 0;
+    compiler->scopeDepth = 0;
+    current = compiler;
 }
 
 static void endCompiler() {
@@ -373,6 +390,8 @@ static ParseRule* getRule(TokenType type) {
 
 bool compile(const char* source, Chunk* chunk) {
     initScanner(source);
+    Compiler compiler;
+    initCompiler(&compiler);
     compilingChunk = chunk;
     parser.hadError = false;
     parser.panicMode = false;
