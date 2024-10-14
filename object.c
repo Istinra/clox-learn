@@ -35,6 +35,14 @@ static uint32_t hashString(const char* key, int length) {
     return hash;
 }
 
+ObjFunction* newFunction() {
+    ObjFunction* function = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION);
+    function->arity = 0;
+    function->name = nullptr;
+    initChunk(&function->chunk);
+    return function;
+}
+
 ObjString* takeString(char* chars, int length) {
     uint32_t hash = hashString(chars, length);
     ObjString* interned = tableFindString(&vm.strings, chars, length, hash);
