@@ -1,6 +1,8 @@
 #include "debug.h"
 #include <stdio.h>
 
+#include "object.h"
+
 void disassembleChunk(Chunk *chunk, const char *name) {
     printf("== %s ==\n", name);
 
@@ -14,15 +16,15 @@ static int simpleInstruction(const char *name, int offset) {
     return offset + 1;
 }
 
-static int byteInstruction(const char* name, Chunk* chunk, int offset) {
+static int byteInstruction(const char *name, Chunk *chunk, int offset) {
     uint8_t slot = chunk->code[offset + 1];
     printf("%-16s %4d\n", name, slot);
     return offset + 2;
 }
 
-static int jumpInstruction(const char* name, int sign,
-                           Chunk* chunk, int offset) {
-    uint16_t jump = (uint16_t)(chunk->code[offset + 1] << 8);
+static int jumpInstruction(const char *name, int sign,
+                           Chunk *chunk, int offset) {
+    uint16_t jump = (uint16_t) (chunk->code[offset + 1] << 8);
     jump |= chunk->code[offset + 2];
     printf("%-16s %4d -> %d\n", name, offset,
            offset + 3 + sign * jump);
@@ -43,11 +45,10 @@ int disassembleInstruction(Chunk *chunk, int offset) {
 
     int count = 0;
     for (int i = 0; i <= chunk->linesCount && count < offset + 1; i += 2) {
-
         const int start = count;
         count += chunk->lines[i];
 
-        if(start == offset) {
+        if (start == offset) {
             printf("%4d ", chunk->lines[i + 1]);
         } else if (count > offset) {
             printf("   | ");
@@ -71,6 +72,10 @@ int disassembleInstruction(Chunk *chunk, int offset) {
             return constantInstruction("OP_DEFINE_GLOBAL", chunk, offset);
         case OP_SET_GLOBAL:
             return constantInstruction("OP_SET_GLOBAL", chunk, offset);
+        case OP_GET_UPVALUE:
+            return byteInstruction("OP_GET_UPVALUE", chunk, offset);
+        case OP_SET_UPVALUE:
+            return byteInstruction("OP_SET_UPVALUE", chunk, offset);
         case OP_EQUAL:
             return simpleInstruction("OP_EQUAL", offset);
         case OP_GREATER:
@@ -103,6 +108,15 @@ int disassembleInstruction(Chunk *chunk, int offset) {
             printf("%-16s %4d ", "OP_CLOSURE", constant);
             printValue(chunk->constants.values[constant]);
             printf("\n");
+
+            ObjFunction *function = AS_FUNCTION(
+                chunk->constants.values[constant]);
+            for (int j = 0; j < function->upvalueCount; j++) {
+                int isLocal = chunk->code[offset++];
+                int index = chunk->code[offset++];
+                printf("%04d      |                     %s %d\n",
+                       offset - 2, isLocal ? "local" : "upvalue", index);
+            }
             return offset;
         }
         case OP_RETURN:

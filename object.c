@@ -44,6 +44,7 @@ static uint32_t hashString(const char* key, int length) {
 ObjFunction* newFunction() {
     ObjFunction* function = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION);
     function->arity = 0;
+    function->upvalueCount = 0;
     function->name = nullptr;
     initChunk(&function->chunk);
     return function;
