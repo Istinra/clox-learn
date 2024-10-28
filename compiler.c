@@ -9,6 +9,7 @@
 #endif
 #include <string.h>
 
+#include "memory.h"
 #include "scanner.h"
 #include "object.h"
 
@@ -777,4 +778,12 @@ ObjFunction* compile(const char* source) {
     }
     ObjFunction* function = endCompiler();
     return parser.hadError ? nullptr : function;
+}
+
+void markCompilerRoots() {
+    Compiler* compiler = current;
+    while (compiler != nullptr) {
+        markObject((Obj*)compiler->function);
+        compiler = compiler->enclosing;
+    }
 }
